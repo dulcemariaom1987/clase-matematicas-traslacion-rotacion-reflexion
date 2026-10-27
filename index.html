@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Movimientos de figuras 2D · 3° básico</title>
+<style>
+:root{--bg:#fff4d6;--card:#ffffff;--ink:#2b2d42;--pink:#ff3d81;--blue:#1f8fff;--green:#1fc77a;--yellow:#ffc933;--purple:#8a5cff;--shadow:0 6px 0 rgba(43,45,66,.15);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1838;--card:#2b2552;--ink:#f6f3ff;--shadow:0 6px 0 rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#1c1838;--card:#2b2552;--ink:#f6f3ff;--shadow:0 6px 0 rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;font-size:18px;line-height:1.5}
+header{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 16px;background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;font-weight:700}
+header .pill{background:rgba(255,255,255,.25);border-radius:999px;padding:4px 14px;font-size:20px}
+#mute{background:none;border:0;font-size:24px;cursor:pointer}
+main{max-width:900px;margin:0 auto;padding:16px}
+.hero{text-align:center;padding:28px 12px;border-radius:28px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--purple) 55%,var(--pink));box-shadow:var(--shadow);overflow:hidden}
+.hero h1{margin:8px 0;font-size:clamp(28px,6vw,48px)}
+.float{display:inline-block;font-size:44px;animation:bob 2s ease-in-out infinite}
+.float:nth-child(2){animation-delay:.3s}.float:nth-child(3){animation-delay:.6s}.float:nth-child(4){animation-delay:.9s}
+@keyframes bob{50%{transform:translateY(-14px) rotate(8deg)}}
+.card{background:var(--card);border-radius:24px;padding:18px;margin:18px 0;box-shadow:var(--shadow)}
+h2{margin:0 0 6px;font-size:clamp(22px,4.5vw,30px);color:var(--purple)}
+h3{margin:0 0 6px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.learn{border:4px solid var(--c);border-radius:20px;padding:14px;text-align:center}
+.demo{height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mv{display:inline-block;font-size:56px}
+.mv.slide.go{animation:slide 1.4s ease-in-out}.mv.spin.go{animation:spin 1.4s ease-in-out}.mv.flip.go{animation:flip 1.4s ease-in-out}
+@keyframes slide{0%{transform:translateX(-60px)}100%{transform:translateX(60px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flip{0%,100%{transform:scaleX(1)}45%,65%{transform:scaleX(-1)}}
+.tip{background:#fff3b0;color:#2b2d42;border-radius:16px;padding:10px 14px;border-left:8px solid var(--yellow)}
+.btn{font:inherit;font-weight:700;color:#fff;background:var(--green);border:0;border-radius:16px;padding:10px 18px;margin:8px 6px 4px 0;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s}
+.btn:active{transform:translateY(3px)}.btn.alt{background:var(--blue)}
+.q{font-weight:700;margin:6px 0}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.options.three{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.opt{font:inherit;background:var(--bg);color:var(--ink);border:4px solid transparent;border-radius:18px;padding:10px;cursor:pointer;min-height:110px;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .15s}
+.opt:hover{transform:scale(1.04)}.opt.sel{border-color:var(--pink);background:#ffe0ee;color:#2b2d42}
+.locked .opt{pointer-events:none}
+.fb{min-height:28px;font-weight:700;margin:6px 0}.fb.ok{color:var(--green)}.fb.bad{color:var(--pink)}
+textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:3px dashed var(--blue);border-radius:14px;padding:10px;resize:vertical}
+.pair{display:flex;align-items:center;justify-content:center;gap:14px;padding:8px}
+.pair.h{flex-direction:column}.pair.big{gap:30px;min-height:120px}
+.g{display:inline-block;width:60px;text-align:center;font:900 54px/1 'Arial Black',system-ui,sans-serif;color:var(--pink)}
+.g.ghost{color:var(--blue)}.arrow{font-size:30px}
+.axis{position:relative;background:var(--ink)}
+.pair.v .axis{width:3px;height:72px}.pair.h .axis{height:3px;width:100px}
+.axis b{position:absolute;top:-4px;left:8px;font-size:15px}.pair.h .axis b{left:auto;right:-20px;top:-11px}
+.fr{display:inline-block;font-size:48px}
+.board{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:3px;max-width:420px;margin:8px auto;background:var(--ink);padding:3px;border-radius:12px}
+.cell{aspect-ratio:1;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:clamp(18px,5vw,30px);border-radius:4px}
+.cell.wall{background:var(--blue)}.cell.goal{background:#ff4d4d}
+.dpad{display:grid;grid-template-areas:". u ." "l d r";gap:6px;justify-content:center}
+.dpad .btn{margin:0;font-size:22px}
+[data-d=arriba]{grid-area:u}[data-d=izquierda]{grid-area:l}[data-d=abajo]{grid-area:d}[data-d=derecha]{grid-area:r}
+.count{text-align:center;margin:4px 0}.row{text-align:center}
+.confetti{position:fixed;top:-30px;font-size:26px;pointer-events:none;z-index:99;animation:fall 1.9s linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(360deg)}}
+.pop{animation:pop .4s}@keyframes pop{50%{transform:scale(1.5)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header><span>🦉 Profe Geo</span><span class="pill">⭐ <span id="stars">0</span></span><button id="mute" aria-label="Sonido" title="Sonido">🔊</button></header>
+<main>
+<section class="hero">
+  <span class="float">🦋</span><span class="float">🪞</span><span class="float">🌀</span><span class="float">🚀</span>
+  <h1>¡Aventura de Movimientos!</h1>
+  <p>Hoy aprenderemos cómo se mueven las figuras: <b>traslación</b>, <b>reflexión</b> y <b>rotación</b>. ¡Gana ⭐ resolviendo desafíos!</p>
+</section>
+
+<section class="card">
+  <h2>🔎 Descubro</h2>
+  <p>Una figura puede moverse de tres maneras. Toca cada botón y observa con mucha atención.</p>
+  <div class="grid3">
+    <div class="learn" style="--c:var(--blue)"><h3>➡️ Traslación</h3><div class="demo"><span class="mv slide">🚌</span></div>
+      <p>La figura <b>se desliza</b> a otro lugar. No gira ni se da vuelta.</p><button class="btn alt" data-play>¡Mírame!</button></div>
+    <div class="learn" style="--c:var(--pink)"><h3>🪞 Reflexión</h3><div class="demo"><span class="mv flip">🐢</span></div>
+      <p>La figura se <b>da vuelta como en un espejo</b>, respecto a una línea llamada eje <b>L</b>.</p><button class="btn alt" data-play>¡Mírame!</button></div>
+    <div class="learn" style="--c:var(--purple)"><h3>🔄 Rotación</h3><div class="demo"><span class="mv spin">🌀</span></div>
+      <p>La figura <b>gira</b> alrededor de un punto fijo llamado centro de rotación.</p><button class="btn alt" data-play>¡Mírame!</button></div>
+  </div>
+  <p class="tip">💡 En los tres movimientos, la <b>forma</b> y el <b>tamaño</b> se mantienen. ¡Solo cambia su lugar o su orientación!</p>
+</section>
+
+<section class="card"><h2>🕵️ ¿Cómo los distingo?</h2>
+  <p>Hazte estas tres preguntas, en orden, cada vez que veas una figura que se movió:</p>
+  <div class="grid3">
+    <div class="learn" style="--c:var(--blue)"><h3>1️⃣ ¿Solo cambió de lugar?</h3><div class="pair"><span class="g ghost">F</span><span class="g" style="transform:translate(14px,-8px)">F</span></div><p>Si se ve igual, mirando hacia el mismo lado, es una <b>traslación</b>.</p></div>
+    <div class="learn" style="--c:var(--pink)"><h3>2️⃣ ¿Parece un espejo?</h3><div class="pair v"><span class="g ghost">F</span><i class="axis"><b>L</b></i><span class="g" style="transform:scaleX(-1)">F</span></div><p>Si quedó al revés, al otro lado de la línea L, es una <b>reflexión</b>.</p></div>
+    <div class="learn" style="--c:var(--purple)"><h3>3️⃣ ¿Giró?</h3><div class="pair"><span class="g ghost">F</span><span class="g" style="transform:rotate(90deg)">F</span></div><p>Si quedó inclinada o de cabeza, como si diera una vuelta, es una <b>rotación</b>.</p></div>
+  </div>
+  <p class="tip">⚠️ ¡Cuidado! Una figura <b>girada</b> no es lo mismo que una figura <b>reflejada</b>. Reflejar es darla vuelta como en un espejo; rotar es hacerla girar sin darla vuelta.</p>
+  <h3>🌎 Ejemplos de la vida diaria</h3>
+  <p>➡️ <b>Traslación:</b> un ascensor que sube, una escalera mecánica, un auto en línea recta.<br>🪞 <b>Reflexión:</b> tu imagen en un espejo, un árbol reflejado en un lago.<br>🔄 <b>Rotación:</b> las ruedas de una bicicleta, las manecillas del reloj, un ventilador.</p>
+  <h3>📚 Palabras importantes</h3>
+  <p><b>Eje L:</b> la línea que funciona como espejo.<br><b>Centro de rotación:</b> el punto que no se mueve mientras la figura gira.<br><b>Posición:</b> el lugar donde está una figura. Se puede describir con filas y columnas.</p>
+</section>
+
+<section class="card"><h2>♟️ Misión 1: Las fichas de damas</h2>
+  <p>En el juego de damas las fichas se mueven por el tablero de un cuadrado a otro. Piensa en cómo lo hacen y responde con tus palabras.</p>
+  <div id="t1"></div><div id="t2"></div><div id="t3"></div></section>
+
+<section class="card"><h2>🍎 Misión 2: ¡Misma forma y mismo tamaño!</h2>
+  <p>Cuando una figura se mueve, no se agranda ni se achica. Elige la imagen que se ve igual que la original.</p>
+  <div id="f1"></div><div id="f2"></div><div id="f3"></div></section>
+
+<section class="card"><h2>➡️ Misión 3: Traslación</h2>
+  <p>Trasladar es <b>deslizar</b> una figura sin girarla ni voltearla. Para describirla usamos: derecha, izquierda, arriba y abajo, y cuántos cuadrados.</p>
+  <div id="pt"></div><div id="pt2"></div><div id="pt3"></div>
+  <h3>🦋 Juego: ¡Guía a la mariposa!</h3>
+  <p>Usa las flechas. Los cuadrados <span style="color:var(--blue)">azules</span> son paredes. Cuando llegues, presiona Verificar.</p>
+  <div id="path"></div>
+  <div id="t4"></div></section>
+
+<section class="card"><h2>🪞 Misión 4: Reflexión</h2>
+  <p>La reflexión es como mirarse al espejo. La línea <b>L</b> es el espejo: la figura queda <b>al otro lado</b> y <b>al revés</b>, a la misma distancia.</p>
+  <p class="tip">🔎 Pista: si el eje es vertical, izquierda y derecha se intercambian. Si es horizontal, arriba y abajo se intercambian.</p>
+  <div id="rv"></div><div id="rv2"></div><div id="rh"></div><div id="rh2"></div></section>
+
+<section class="card"><h2>🔄 Misión 5: Rotación</h2>
+  <p>Al rotar, la figura gira como las manecillas de un reloj o al revés, alrededor de un centro. Un giro completo son 360°, medio giro son 180° y un cuarto de giro son 90°.</p>
+  <div id="ro"></div><div id="ro2"></div><div id="ro3"></div>
+  <div id="t5"></div><div id="t6"></div></section>
+
+<section class="card"><h2>📍 Misión 6: ¿Dónde termina?</h2>
+  <p>Para ubicar una figura contamos las <b>filas</b> hacia abajo y las <b>columnas</b> hacia la derecha. Al trasladarla, sumamos los cuadrados que se mueve.</p>
+  <p class="tip">💡 Ejemplo: desde la fila 1, columna 1, si te mueves 2 cuadrados a la derecha y 1 hacia abajo, llegas a la fila 2, columna 3.</p>
+  <div id="pos"></div><div id="pos2"></div><div id="t9"></div></section>
+
+<section class="card"><h2>✅ Misión 7: ¿Verdadero o falso?</h2>
+  <p>Lee cada afirmación y decide si es verdadera o falsa.</p>
+  <div id="vf"></div><div id="t7"></div><div id="t8"></div></section>
+
+<section class="card"><h2>🏆 Juego final: ¡Detective de movimientos!</h2>
+  <p>Mira el antes (azul) y el después (rosado). ¿Qué movimiento ocurrió?</p>
+  <div id="game"></div></section>
+
+<section class="hero"><h2 style="color:#fff">🎉 ¡Eres un campeón del movimiento!</h2><p>Puedes repetir los ejercicios con “Nuevo ejercicio” para seguir practicando.</p></section>
+</main>
+
+<script>
+'use strict';
+/* ---------- Utilidades ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+/* ---------- Servicios ---------- */
+const Sound = (() => {
+  let ctx = null, on = true;
+  const tone = (f, d, type = 'sine', delay = 0) => {
+    if (!on) return;
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + delay;
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + d);
+      o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + d);
+    } catch (e) { /* sin audio disponible */ }
+  };
+  return {
+    ok: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.15, 'triangle', i * 0.09)),
+    bad: () => tone(170, 0.3, 'sawtooth'),
+    click: () => tone(660, 0.06),
+    toggle: () => { on = !on; return on; }
+  };
+})();
+
+const Score = (() => {
+  let total = 0;
+  return { add(n = 1) { total += n; const s = $('#stars'); s.textContent = total; s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); } };
+})();
+
+const Confetti = {
+  burst() {
+    const icons = ['🎉', '⭐', '✨', '🎈', '💖'];
+    for (let i = 0; i < 18; i++) {
+      const s = el('span', 'confetti', pick(icons));
+      s.style.left = Math.random() * 95 + 'vw';
+      s.style.animationDelay = Math.random() * 0.4 + 's';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 2400);
+    }
+  }
+};
+
+const Feedback = {
+  show(box, ok, msg) {
+    box.className = 'fb ' + (ok ? 'ok' : 'bad');
+    box.textContent = msg;
+    if (ok) { Sound.ok(); Confetti.burst(); } else Sound.bad();
+  }
+};
+
+/* ---------- Componentes ---------- */
+function mountChoice(root, { prompt, options, onDone }) {
+  root.innerHTML = '';
+  root.append(el('p', 'q', prompt));
+  const list = el('div', 'options');
+  const fb = el('div', 'fb');
+  const btn = el('button', 'btn', 'Verificar ✔');
+  let selected = -1, done = false;
+  btn.type = 'button';
+  options.forEach((o, i) => {
+    const b = el('button', 'opt', o.html);
+    b.type = 'button';
+    b.onclick = () => {
+      if (done) return;
+      selected = i; Sound.click();
+      [...list.children].forEach((c, j) => c.classList.toggle('sel', j === i));
+    };
+    list.append(b);
+  });
+  btn.onclick = () => {
+    if (done) return;
+    if (selected < 0) { fb.className = 'fb bad'; fb.textContent = 'Primero elige una opción 👆'; return; }
+    const ok = options[selected].correct;
+    Feedback.show(fb, ok, ok ? '¡Correcto! ¡Eres genial! 🌟' : '¡Casi! Observa con calma e inténtalo otra vez 💪');
+    if (ok) { done = true; list.classList.add('locked'); Score.add(); if (onDone) onDone(root); }
+  };
+  root.append(list, btn, fb);
+}
+
+function mountText(root, { prompt, patterns = [], hint, rows = 3 }) {
+  root.innerHTML = '';
+  const ta = el('textarea');
+  const fb = el('div', 'fb');
+  const btn = el('button', 'btn', 'Verificar ✔');
+  let rewarded = false;
+  ta.rows = rows; ta.placeholder = 'Escribe tu respuesta aquí…';
+  btn.type = 'button';
+  btn.onclick = () => {
+    const text = ta.value.trim();
+    if (text.length < 4) { fb.className = 'fb bad'; fb.textContent = 'Escribe tu respuesta en la caja ✏️'; return; }
+    const ok = patterns.every(p => p.test(text));
+    Feedback.show(fb, ok, ok ? '¡Excelente respuesta! 🌟' : hint);
+    if (ok && !rewarded) { rewarded = true; Score.add(); }
+  };
+  root.append(el('p', 'q', prompt), ta, btn, fb);
+}
+
+/* ---------- Ejercicios de figuras (letra F) ---------- */
+const TF = { same: 'none', flipX: 'scaleX(-1)', flipY: 'scaleY(-1)', r90: 'rotate(90deg)', r180: 'rotate(180deg)', r270: 'rotate(270deg)' };
+const SPECS = {
+  traslacion: { prompt: '¿Cuál figura fue solo trasladada (deslizada)?', right: ['same'], wrong: ['r90', 'flipX', 'r180', 'flipY'], axis: null },
+  rotacion: { prompt: '¿Cuál figura fue rotada (girada)?', right: ['r90', 'r180', 'r270'], wrong: ['same', 'flipX', 'flipY'], axis: null },
+  reflexionV: { prompt: '¿Cuál figura es el reflejo de la original respecto al eje L?', right: ['flipX'], wrong: ['same', 'flipY', 'r180'], axis: 'v' },
+  reflexionH: { prompt: '¿Cuál figura es el reflejo de la original respecto al eje L?', right: ['flipY'], wrong: ['same', 'flipX', 'r180'], axis: 'h' }
+};
+
+function optionHtml(key, axis) {
+  if (axis) {
+    return `<div class="pair ${axis}"><span class="g ghost">F</span><i class="axis"><b>L</b></i><span class="g" style="transform:${TF[key]}">F</span></div>`;
+  }
+  const shift = `translate(${pick([-14, 14])}px,${pick([-8, 8])}px) `;
+  return `<div class="pair"><span class="g ghost">F</span><span class="g" style="transform:${shift}${TF[key]}">F</span></div>`;
+}
+
+function buildExercise(kind) {
+  const spec = SPECS[kind];
+  const make = (key, correct) => ({ correct, html: optionHtml(key, spec.axis) });
+  const wrong = shuffle(spec.wrong).slice(0, 3).map(k => make(k, false));
+  return { prompt: spec.prompt, options: shuffle([make(pick(spec.right), true), ...wrong]) };
+}
+
+function mountPractice(root, kind) {
+  mountEndless(root, () => buildExercise(kind));
+}
+
+function mountEndless(root, builder) {
+  const next = () => {
+    const ex = builder();
+    mountChoice(root, {
+      prompt: ex.prompt, options: ex.options,
+      onDone: () => {
+        const b = el('button', 'btn alt', 'Nuevo ejercicio 🔄');
+        b.type = 'button'; b.onclick = next; root.append(b);
+      }
+    });
+  };
+  next();
+}
+
+/* ---------- Misión 2: tamaño y forma ---------- */
+function mountSizeQuestions() {
+  const variants = [
+    { css: 'translateX(6px)', correct: true },
+    { css: 'scale(.55)', correct: false },
+    { css: 'scale(1.45)', correct: false },
+    { css: 'scale(1.5,.6)', correct: false }
+  ];
+  ['🥝', '🍌', '🍎'].forEach((emoji, i) => {
+    mountChoice($('#f' + (i + 1)), {
+      prompt: `Imagen destacada: ${emoji}. Elige la que mantiene la misma forma y tamaño.`,
+      options: shuffle(variants).map(v => ({ correct: v.correct, html: `<span class="fr" style="transform:${v.css}">${emoji}</span>` }))
+    });
+  });
+}
+
+/* ---------- Juego de la mariposa ---------- */
+const DIRS = { arriba: [-1, 0], abajo: [1, 0], izquierda: [0, -1], derecha: [0, 1] };
+const LEVELS = [
+  { start: [4, 0], target: [1, 5], showTarget: true, text: 'Lleva la mariposa hasta el cuadro rojo.' },
+  { start: [0, 0], steps: [['derecha', 3], ['abajo', 2]] },
+  { start: [3, 0], target: [0, 6], showTarget: true, blocks: [[2, 1], [2, 2], [2, 3], [1, 3], [4, 4], [3, 4]], text: 'Esquiva las paredes azules y llega al cuadro rojo.' },
+  { start: [5, 6], steps: [['arriba', 3], ['izquierda', 4], ['abajo', 1], ['izquierda', 2]] }
+];
+
+function describeSteps(steps) {
+  const words = steps.map(([d, n]) => `${n} ${d === 'arriba' || d === 'abajo' ? 'hacia ' + d : 'a la ' + d}`);
+  return 'Sigue estas instrucciones: ' + words.join(', ') + '.';
+}
+
+function mountPath(root) {
+  const ROWS = 6, COLS = 7;
+  let li = 0, pos, steps, level, target, locked;
+  root.innerHTML = `<p class="q" id="pInfo"></p><div class="board" id="pBoard"></div>
+    <div class="dpad">${Object.keys(DIRS).map(d => `<button type="button" class="btn alt" data-d="${d}" aria-label="${d}">${{ arriba: '⬆️', abajo: '⬇️', izquierda: '⬅️', derecha: '➡️' }[d]}</button>`).join('')}</div>
+    <p class="count" id="pCount"></p>
+    <div class="row"><button type="button" class="btn" id="pCheck">Verificar ✔</button><button type="button" class="btn alt" id="pReset">Reiniciar ↺</button></div>
+    <div class="fb" id="pFb"></div>`;
+  const info = $('#pInfo', root), board = $('#pBoard', root), count = $('#pCount', root), fb = $('#pFb', root);
+  const same = (a, b) => a[0] === b[0] && a[1] === b[1];
+  const isWall = (r, c) => (level.blocks || []).some(b => same(b, [r, c]));
+
+  function draw() {
+    board.style.setProperty('--cols', COLS);
+    board.innerHTML = '';
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const cell = el('div', 'cell');
+      if (isWall(r, c)) cell.classList.add('wall');
+      if (level.showTarget && same(target, [r, c])) cell.classList.add('goal');
+      if (same(pos, [r, c])) cell.textContent = '🦋';
+      board.append(cell);
+    }
+    info.textContent = `Nivel ${li + 1} de ${LEVELS.length}: ` + (level.text || describeSteps(level.steps));
+    count.textContent = `Movimientos: ${steps}`;
+  }
+  function load() {
+    level = LEVELS[li]; pos = [...level.start]; steps = 0; locked = false;
+    target = level.steps ? level.steps.reduce((p, [d, n]) => [p[0] + DIRS[d][0] * n, p[1] + DIRS[d][1] * n], level.start) : level.target;
+    fb.className = 'fb'; fb.textContent = ''; draw();
+  }
+  function move(dir) {
+    if (locked) return;
+    const r = pos[0] + DIRS[dir][0], c = pos[1] + DIRS[dir][1];
+    if (r < 0 || c < 0 || r >= ROWS || c >= COLS || isWall(r, c)) { Sound.bad(); return; }
+    pos = [r, c]; steps++; Sound.click(); fb.textContent = ''; draw();
+  }
+  root.querySelectorAll('[data-d]').forEach(b => b.onclick = () => move(b.dataset.d));
+  $('#pReset', root).onclick = load;
+  $('#pCheck', root).onclick = () => {
+    if (locked) return;
+    const ok = same(pos, target);
+    Feedback.show(fb, ok, ok ? '¡Llegaste! 🎉' : 'Todavía no llegas… revisa las instrucciones 🧐');
+    if (!ok) return;
+    locked = true; Score.add(2);
+    setTimeout(() => { li = (li + 1) % LEVELS.length; load(); }, 1500);
+  };
+  load();
+}
+
+/* ---------- Juego final ---------- */
+const CLASSIFY = [
+  ['traslacion', 'translate(16px,-8px)'], ['traslacion', 'translate(-14px,10px)'],
+  ['rotacion', 'rotate(90deg)'], ['rotacion', 'rotate(180deg)'], ['rotacion', 'rotate(270deg)'],
+  ['reflexion', 'scaleX(-1)'], ['reflexion', 'scaleY(-1)']
+];
+const LABELS = { traslacion: '➡️ Traslación', rotacion: '🔄 Rotación', reflexion: '🪞 Reflexión' };
+
+function mountGame(root) {
+  const ROUNDS = 8;
+  let queue, idx, hits;
+  function start() { queue = shuffle([...CLASSIFY, ...CLASSIFY]).slice(0, ROUNDS); idx = 0; hits = 0; render(); }
+  function render() {
+    root.innerHTML = '';
+    if (idx >= ROUNDS) {
+      const again = el('button', 'btn alt', 'Jugar de nuevo 🔁');
+      again.type = 'button'; again.onclick = start;
+      root.append(el('p', 'q', `🏆 ¡Terminaste! Acertaste ${hits} de ${ROUNDS} a la primera.`), again);
+      return;
+    }
+    const [type, css] = queue[idx];
+    const fb = el('div', 'fb');
+    const opts = el('div', 'options three');
+    let missed = false, locked = false;
+    Object.keys(LABELS).forEach(key => {
+      const b = el('button', 'opt', LABELS[key]);
+      b.type = 'button';
+      b.onclick = () => {
+        if (locked) return;
+        if (key === type) {
+          locked = true; Feedback.show(fb, true, '¡Muy bien! 🎉');
+          if (!missed) { hits++; Score.add(); }
+          idx++; setTimeout(render, 1000);
+        } else { missed = true; Feedback.show(fb, false, '¡Uy! Inténtalo otra vez 🙈'); }
+      };
+      opts.append(b);
+    });
+    root.append(
+      el('p', 'q', `Pregunta ${idx + 1} de ${ROUNDS}`),
+      el('div', 'pair big', `<span class="g ghost">F</span><span class="arrow">➜</span><span class="g" style="transform:${css}">F</span>`),
+      opts, fb);
+  }
+  start();
+}
+
+/* ---------- Posiciones tras una traslación ---------- */
+function buildPosition() {
+  const rnd = () => 1 + Math.floor(Math.random() * 3);
+  const [r, c, dr, dc] = [rnd(), rnd(), rnd(), rnd()];
+  const label = ([a, b]) => `fila ${a}, columna ${b}`;
+  const right = [r + dr, c + dc];
+  const seen = new Set([label(right)]);
+  const pool = [[r + dc, c + dr], [r + dr, c], [r, c + dc], [r + dr + 1, c + dc], [r + dr, c + dc + 1], [r + dr - 1, c + dc]];
+  const wrong = shuffle(pool).filter(p => !seen.has(label(p)) && seen.add(label(p))).slice(0, 3);
+  const make = (p, correct) => ({ correct, html: label(p) });
+  return {
+    prompt: `Una mariposa 🦋 está en la fila ${r}, columna ${c}. Se traslada ${dc} cuadrado(s) a la derecha y ${dr} cuadrado(s) hacia abajo. ¿En qué posición queda?`,
+    options: shuffle([make(right, true), ...wrong.map(p => make(p, false))])
+  };
+}
+
+/* ---------- Verdadero o falso ---------- */
+const STATEMENTS = [
+  ['En una traslación, la figura se da vuelta como en un espejo.', false],
+  ['Al rotar una figura, su tamaño no cambia.', true],
+  ['La reflexión necesita una línea llamada eje.', true],
+  ['Al trasladar una figura, esta queda más grande.', false],
+  ['Una puerta que gira en sus bisagras es un ejemplo de rotación.', true],
+  ['Un ascensor que sube en línea recta es una traslación.', true],
+  ['Tu reflejo en un espejo es un ejemplo de reflexión.', true],
+  ['En una rotación, todos los puntos de la figura se quedan quietos.', false],
+  ['Un giro completo mide 360°.', true]
+];
+
+function mountTrueFalse(root) {
+  STATEMENTS.forEach(([text, value], i) => {
+    const holder = el('div');
+    root.append(holder);
+    mountChoice(holder, {
+      prompt: `${i + 1}) ${text}`,
+      options: [{ html: '✅ Verdadero', correct: value }, { html: '❌ Falso', correct: !value }]
+    });
+  });
+}
+
+function mountExtraTexts() {
+  mountText($('#t7'), { prompt: 'Con tus palabras: ¿cuál es la diferencia entre una traslación y una rotación?', patterns: [/gira|giro|rota|vuelta/i, /desliz|mueve|lugar|recta/i], hint: 'Piensa: una se desliza y la otra gira 🤔' });
+  mountText($('#t8'), { prompt: 'Explica qué es una reflexión y para qué sirve el eje L.', patterns: [/espejo|reflej|otro lado|al rev|vuelta/i], hint: 'Recuerda cómo se ve tu imagen en un espejo 🤔' });
+  mountText($('#t9'), { prompt: 'Un robot 🤖 se mueve 2 cuadrados a la izquierda, 1 hacia arriba y 3 cuadrados a la derecha. ¿Cuánto quedó desplazado de donde partió, hacia los lados y hacia arriba o abajo?', patterns: [/\b(1|un|uno)\b.*derecha|derecha.*\b(1|un|uno)\b/i, /\b(1|un|uno)\b.*arriba|arriba.*\b(1|un|uno)\b/i], hint: 'Resta los movimientos que van en sentido contrario 🤔' });
+}
+
+/* ---------- Inicio ---------- */
+function mountLearnDemos() {
+  document.querySelectorAll('[data-play]').forEach(btn => {
+    btn.onclick = () => {
+      const mv = btn.parentElement.querySelector('.mv');
+      mv.classList.remove('go'); void mv.offsetWidth; mv.classList.add('go'); Sound.click();
+    };
+  });
+}
+
+function mountTexts() {
+  mountText($('#t1'), { prompt: '1) ¿Cómo se trasladan las fichas en el tablero?', patterns: [/diagonal|desliz|mueven|lugar|posici|adelante|cuadrado/i], hint: 'Piensa en cómo avanza una ficha de un cuadrado a otro 🤔' });
+  mountText($('#t2'), { prompt: '2) Al mover la ficha, ¿qué ocurre con su forma, tamaño y ubicación? ¿Qué cambia y qué se mantiene?', patterns: [/ubicaci|posici|lugar/i, /forma|tama[ñn]o/i], hint: 'Nombra algo que cambia y algo que se mantiene igual 🤔' });
+  mountText($('#t3'), { prompt: '3) Una ficha se mueve hacia la derecha en línea recta. Describe ese movimiento.', patterns: [/derecha|lado|recta|horizontal/i], hint: 'Cuenta hacia dónde y cuántos cuadrados se mueve 🤔' });
+  mountText($('#t4'), { prompt: 'Una mariposa se mueve 3 cuadrados a la derecha y 2 hacia abajo. ¿Cómo describirías esa traslación con tus palabras?', patterns: [/derecha/i, /abajo/i], hint: 'Usa palabras como derecha, izquierda, arriba o abajo, y los números 🤔' });
+  mountText($('#t5'), { prompt: 'Escribe un ejemplo de la vida diaria que se relacione con una rotación.', patterns: [], hint: '' });
+  mountText($('#t6'), { prompt: 'Escribe otro ejemplo distinto de rotación.', patterns: [], hint: '' });
+}
+
+function init() {
+  $('#mute').onclick = e => { e.currentTarget.textContent = Sound.toggle() ? '🔊' : '🔇'; };
+  mountLearnDemos();
+  mountTexts();
+  mountSizeQuestions();
+  mountPractice($('#pt'), 'traslacion');
+  mountPath($('#path'));
+  mountPractice($('#rv'), 'reflexionV');
+  mountPractice($('#rh'), 'reflexionH');
+  mountPractice($('#ro'), 'rotacion');
+  mountPractice($('#pt2'), 'traslacion');
+  mountPractice($('#pt3'), 'traslacion');
+  mountPractice($('#rv2'), 'reflexionV');
+  mountPractice($('#rh2'), 'reflexionH');
+  mountPractice($('#ro2'), 'rotacion');
+  mountPractice($('#ro3'), 'rotacion');
+  mountEndless($('#pos'), buildPosition);
+  mountEndless($('#pos2'), buildPosition);
+  mountTrueFalse($('#vf'));
+  mountExtraTexts();
+  mountGame($('#game'));
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
